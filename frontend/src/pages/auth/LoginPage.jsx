@@ -85,9 +85,10 @@ export default function LoginPage() {
         <div style={{ width:"100%" }}>
 
           {/* Official Logo */}
-          <div style={{ marginBottom:20 }}>
-            <img src={logoImg} alt="PitStop Performance Logo" style={{ maxHeight:44, maxWidth:"100%", objectFit:"contain" }} />
+          <div style={{ display:"flex", justifyContent:"center", marginBottom:24 }}>
+            <img src={logoImg} alt="PitStop Performance Logo" style={{ height:65, maxWidth:"100%", objectFit:"contain" }} />
           </div>
+
 
 
           <h1 style={{ fontSize:22, fontWeight:800, color:"#0f172a", marginBottom:4, lineHeight:1.2 }}>
