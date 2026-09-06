@@ -9,18 +9,18 @@ const roleRedirects = { manager:"/manager", advisor:"/advisor", supervisor:"/sup
 
 const labelStyle = {
   display: "block",
-  fontSize: 13,
+  fontSize: 12,
   fontWeight: 600,
   color: "#374151",
-  marginBottom: 6,
+  marginBottom: 5,
 };
 
 const inputStyle = {
   width: "100%",
-  padding: "11px 14px",
-  borderRadius: 8,
+  padding: "9px 12px",
+  borderRadius: 6,
   border: "1px solid #d1d5db",
-  fontSize: 14,
+  fontSize: 13,
   color: "#1f2937",
   outline: "none",
   transition: "0.2s",
@@ -29,15 +29,15 @@ const inputStyle = {
 
 const btnPrimary = {
   width: "100%",
-  padding: "12px",
-  borderRadius: 8,
+  padding: "10px",
+  borderRadius: 6,
   background: "linear-gradient(135deg, #f59e0b, #d97706)",
   color: "#fff",
   border: "none",
-  fontSize: 14,
+  fontSize: 13,
   fontWeight: 700,
   cursor: "pointer",
-  boxShadow: "0 4px 14px rgba(245,158,11,0.35)",
+  boxShadow: "0 3px 10px rgba(245,158,11,0.3)",
   transition: "opacity 0.2s",
 };
 
@@ -74,32 +74,32 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ display:"flex", minHeight:"100vh", background:"#fff" }}>
+    <div style={{ display:"flex", height:"100vh", overflow:"hidden", background:"#fff" }}>
 
-      {/* ── LEFT PANEL — Centered Form ── */}
+      {/* ── LEFT PANEL — Perfectly Scaled Form ── */}
       <div style={{
-        flex: "1 1 50%", display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center",
-        padding:"48px 40px", background:"#fff", overflowY:"auto"
+        flex: "0 0 440px", display:"flex", flexDirection:"column", justifyContent:"center",
+        padding:"32px 48px", background:"#fff", boxSizing:"border-box", overflowY:"auto"
       }}>
-        <div style={{ width:"100%", maxWidth:380 }}>
+        <div style={{ width:"100%" }}>
 
           {/* Logo */}
-          <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:32 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:20 }}>
             <div style={{
-              width:38, height:38, borderRadius:10,
+              width:32, height:32, borderRadius:8,
               background:"linear-gradient(135deg,#f59e0b,#d97706)",
               display:"flex", alignItems:"center", justifyContent:"center",
-              fontSize:20, boxShadow:"0 4px 14px rgba(245,158,11,0.35)"
+              fontSize:16, boxShadow:"0 3px 10px rgba(245,158,11,0.3)"
             }}>🔧</div>
-            <span style={{ fontSize:20, fontWeight:800, color:"#111", letterSpacing:"-0.5px" }}>
+            <span style={{ fontSize:18, fontWeight:800, color:"#111", letterSpacing:"-0.5px" }}>
               PitStop<span style={{ color:"#f59e0b" }}>Pro</span>
             </span>
           </div>
 
-          <h1 style={{ fontSize:28, fontWeight:800, color:"#0f172a", marginBottom:6, lineHeight:1.2 }}>
+          <h1 style={{ fontSize:22, fontWeight:800, color:"#0f172a", marginBottom:4, lineHeight:1.2 }}>
             {tab === "login" ? "Welcome back" : "Get Started Now"}
           </h1>
-          <p style={{ fontSize:14, color:"#64748b", marginBottom:28 }}>
+          <p style={{ fontSize:13, color:"#64748b", marginBottom:20 }}>
             {tab === "login"
               ? "Sign in to your workshop dashboard"
               : "Create your customer account today"}
@@ -109,7 +109,7 @@ export default function LoginPage() {
           {tab === "login" ? (
             <form onSubmit={handleLogin} style={{ display:"flex", flexDirection:"column", gap:0 }}>
 
-              <div style={{ marginBottom:18 }}>
+              <div style={{ marginBottom:14 }}>
                 <label style={labelStyle}>Email address</label>
                 <input style={inputStyle} type="email" placeholder="Enter your email"
                   value={form.email} onChange={set("email")} required
@@ -117,7 +117,7 @@ export default function LoginPage() {
                   onBlur={e=>{e.target.style.borderColor="#d1d5db";e.target.style.boxShadow="none";}} />
               </div>
 
-              <div style={{ marginBottom:24 }}>
+              <div style={{ marginBottom:18 }}>
                 <label style={labelStyle}>Password</label>
                 <input style={inputStyle} type="password" placeholder="••••••••"
                   value={form.password} onChange={set("password")} required
@@ -131,7 +131,7 @@ export default function LoginPage() {
                 {loading ? "Signing in…" : "Sign In"}
               </button>
 
-              <p style={{ textAlign:"center", marginTop:24, fontSize:13, color:"#64748b" }}>
+              <p style={{ textAlign:"center", marginTop:16, fontSize:12, color:"#64748b" }}>
                 Don't have an account?{" "}
                 <span onClick={() => setTab("register")}
                   style={{ color:"#f59e0b", fontWeight:600, cursor:"pointer", textDecoration:"underline" }}>
@@ -145,7 +145,7 @@ export default function LoginPage() {
           /* ── REGISTER FORM ── */
             <form onSubmit={handleRegister} style={{ display:"flex", flexDirection:"column", gap:0 }}>
 
-              <div style={{ marginBottom:16 }}>
+              <div style={{ marginBottom:12 }}>
                 <label style={labelStyle}>Full Name</label>
                 <input style={inputStyle} placeholder="Saman Perera"
                   value={form.full_name} onChange={set("full_name")} required
@@ -153,7 +153,7 @@ export default function LoginPage() {
                   onBlur={e=>{e.target.style.borderColor="#d1d5db";e.target.style.boxShadow="none";}} />
               </div>
 
-              <div style={{ marginBottom:16 }}>
+              <div style={{ marginBottom:12 }}>
                 <label style={labelStyle}>Email address</label>
                 <input style={inputStyle} type="email" placeholder="Enter your email"
                   value={form.email} onChange={set("email")} required
@@ -161,7 +161,7 @@ export default function LoginPage() {
                   onBlur={e=>{e.target.style.borderColor="#d1d5db";e.target.style.boxShadow="none";}} />
               </div>
 
-              <div style={{ marginBottom:16 }}>
+              <div style={{ marginBottom:12 }}>
                 <label style={labelStyle}>Phone</label>
                 <input style={inputStyle} placeholder="0771234567"
                   value={form.phone} onChange={set("phone")}
@@ -169,7 +169,7 @@ export default function LoginPage() {
                   onBlur={e=>{e.target.style.borderColor="#d1d5db";e.target.style.boxShadow="none";}} />
               </div>
 
-              <div style={{ marginBottom:16 }}>
+              <div style={{ marginBottom:12 }}>
                 <label style={labelStyle}>Password</label>
                 <input style={inputStyle} type="password" placeholder="Min. 6 characters"
                   value={form.password} onChange={set("password")} required minLength={6}
@@ -177,7 +177,7 @@ export default function LoginPage() {
                   onBlur={e=>{e.target.style.borderColor="#d1d5db";e.target.style.boxShadow="none";}} />
               </div>
 
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:20 }}>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
                 <div>
                   <label style={labelStyle}>NIC Number</label>
                   <input style={inputStyle} placeholder="990123456V"
@@ -194,9 +194,9 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <label style={{ display:"flex", alignItems:"center", gap:8, fontSize:13, color:"#475569", marginBottom:20, cursor:"pointer" }}>
+              <label style={{ display:"flex", alignItems:"center", gap:8, fontSize:12, color:"#475569", marginBottom:14, cursor:"pointer" }}>
                 <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)}
-                  style={{ width:16, height:16, accentColor:"#f59e0b" }} />
+                  style={{ width:14, height:14, accentColor:"#f59e0b" }} />
                 I agree to the{" "}
                 <span style={{ color:"#f59e0b", textDecoration:"underline" }}>terms & policy</span>
               </label>
@@ -207,7 +207,7 @@ export default function LoginPage() {
                 {loading ? "Creating account…" : "Create Account"}
               </button>
 
-              <p style={{ textAlign:"center", marginTop:20, fontSize:13, color:"#64748b" }}>
+              <p style={{ textAlign:"center", marginTop:14, fontSize:12, color:"#64748b" }}>
                 Have an account?{" "}
                 <span onClick={() => setTab("register")}
                   style={{ color:"#f59e0b", fontWeight:600, cursor:"pointer", textDecoration:"underline" }}>
@@ -220,7 +220,7 @@ export default function LoginPage() {
       </div>
 
       {/* ── RIGHT PANEL — Garage Image ── */}
-      <div style={{ flex:"1 1 50%", position:"relative", overflow:"hidden", minHeight:"100vh" }}>
+      <div style={{ flex:1, height:"100vh", overflow:"hidden" }}>
         <img src={garageHero} alt="PitStopPro Workshop"
           style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center" }} />
       </div>
