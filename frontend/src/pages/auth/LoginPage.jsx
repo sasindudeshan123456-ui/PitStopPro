@@ -41,7 +41,6 @@ const btnPrimary = {
   transition: "opacity 0.2s",
 };
 
-
 export default function LoginPage() {
   const [tab, setTab] = useState("login");
   const [form, setForm] = useState({ email:"", password:"", full_name:"", phone:"", nic:"", address:"" });
@@ -131,34 +130,6 @@ export default function LoginPage() {
               {loading ? "Signing in…" : "Sign In"}
             </button>
 
-            <div style={{ textAlign:"center", margin:"20px 0", color:"#94a3b8", fontSize:13 }}>or</div>
-
-            {/* Quick-fill demo logins */}
-            <div style={{ background:"#f8fafc", borderRadius:10, padding:"14px 16px", border:"1px solid #e2e8f0" }}>
-              <p style={{ fontSize:12, fontWeight:600, color:"#64748b", marginBottom:8 }}>
-                🔑 Staff demo logins <span style={{ fontWeight:400 }}>(click to fill)</span>
-              </p>
-              <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
-                {[["Manager","manager@pitstoppro.lk"],["Advisor","advisor@pitstoppro.lk"],
-                  ["Supervisor","supervisor@pitstoppro.lk"],["Technician","tech@pitstoppro.lk"],
-                  ["Storekeeper","store@pitstoppro.lk"],["Cashier","cashier@pitstoppro.lk"]
-                ].map(([role, email]) => (
-                  <button key={email} type="button"
-                    onClick={() => setForm(f => ({ ...f, email, password:"Admin@1234" }))}
-                    style={{
-                      padding:"4px 10px", borderRadius:20, fontSize:12, fontWeight:500,
-                      border:"1px solid #e2e8f0", background:"#fff", color:"#374151",
-                      cursor:"pointer", transition:"0.15s"
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background="#f59e0b"; e.currentTarget.style.color="#fff"; e.currentTarget.style.borderColor="#f59e0b"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background="#fff"; e.currentTarget.style.color="#374151"; e.currentTarget.style.borderColor="#e2e8f0"; }}>
-                    {role}
-                  </button>
-                ))}
-              </div>
-              <p style={{ fontSize:11, color:"#94a3b8", marginTop:8 }}>Password: Admin@1234</p>
-            </div>
-
             <p style={{ textAlign:"center", marginTop:24, fontSize:13, color:"#64748b" }}>
               Don't have an account?{" "}
               <span onClick={() => setTab("register")}
@@ -237,7 +208,7 @@ export default function LoginPage() {
 
             <p style={{ textAlign:"center", marginTop:20, fontSize:13, color:"#64748b" }}>
               Have an account?{" "}
-              <span onClick={() => setTab("login")}
+              <span onClick={() => setTab("register")}
                 style={{ color:"#f59e0b", fontWeight:600, cursor:"pointer", textDecoration:"underline" }}>
                 Sign In
               </span>
@@ -250,39 +221,6 @@ export default function LoginPage() {
       <div style={{ flex:1, position:"relative", overflow:"hidden", minHeight:"100vh" }}>
         <img src={garageHero} alt="PitStopPro Workshop"
           style={{ width:"100%", height:"100%", objectFit:"cover", objectPosition:"center" }} />
-
-        {/* Dark gradient overlay */}
-        <div style={{
-          position:"absolute", inset:0,
-          background:"linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 60%, transparent 100%)"
-        }} />
-
-        {/* Overlay badge */}
-        <div style={{
-          position:"absolute", bottom:40, left:40, right:40,
-          background:"rgba(0,0,0,0.5)", backdropFilter:"blur(16px)",
-          borderRadius:16, padding:"22px 26px",
-          border:"1px solid rgba(255,255,255,0.12)"
-        }}>
-          <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
-            <span style={{ fontSize:22 }}>🏎️</span>
-            <p style={{ fontSize:17, fontWeight:700, color:"#fff" }}>
-              Professional Vehicle Workshop Management
-            </p>
-          </div>
-          <p style={{ fontSize:13, color:"rgba(255,255,255,0.65)", lineHeight:1.7 }}>
-            From customer intake to final invoice — manage every bay, every technician,
-            and every repair in one powerful platform.
-          </p>
-          <div style={{ display:"flex", gap:20, marginTop:16 }}>
-            {[["7","User Roles"],["14","DB Tables"],["8","Modules"]].map(([n,l]) => (
-              <div key={l}>
-                <div style={{ fontSize:22, fontWeight:800, color:"#f59e0b" }}>{n}</div>
-                <div style={{ fontSize:12, color:"rgba(255,255,255,0.5)" }}>{l}</div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
