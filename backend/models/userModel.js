@@ -1,0 +1,36 @@
+﻿const db = require("../config/db");
+
+const findByEmail = async (email) => {
+  const [rows] = await db.query("SELECT * FROM users WHERE email = ? AND is_active = 1", [email]);
+  return rows[0];
+};
+
+const findById = async (id) => {
+  const [rows] = await db.query("SELECT id, full_name, email, role, phone, created_at FROM users WHERE id = ?", [id]);
+  return rows[0];
+};
+
+const create = async ({ full_name, email, password, role, phone }) => {
+  const [result] = await db.query(
+    "INSERT INTO users (full_name, email, password, role, phone) VALUES (?, ?, ?, ?, ?)",
+    [full_name, email, password, role || "customer", phone || null]
+  );
+  return result.insertId;
+};
+
+const getByRole = async (role) => {
+  const [rows] = await db.query(
+    "SELECT id, full_name, email, role, phone, is_active FROM users WHERE role = ? ORDER BY full_name",
+    [role]
+  );
+  return rows;
+};
+
+const getAll = async () => {
+  const [rows] = await db.query(
+    "SELECT id, full_name, email, role, phone, is_active, created_at FROM users ORDER BY created_at DESC"
+  );
+  return rows;
+};
+
+module.exports = { findByEmail, findById, create, getByRole, getAll };

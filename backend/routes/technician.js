@@ -1,0 +1,10 @@
+﻿const router = require("express").Router();
+const c = require("../controllers/technicianController");
+const { authenticate, authorize } = require("../middleware/auth");
+router.use(authenticate);
+router.get("/my-tasks", authorize("technician","qc_inspector"), c.myTasks);
+router.post("/tasks/:id/clock-in", authorize("technician"), c.clockIn);
+router.post("/tasks/:id/clock-out", authorize("technician"), c.clockOut);
+router.patch("/tasks/:id/qc", authorize("qc_inspector","manager"), c.qcUpdate);
+router.get("/tasks/:id/logs", c.getLogs);
+module.exports = router;

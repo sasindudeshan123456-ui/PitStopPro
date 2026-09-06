@@ -1,0 +1,11 @@
+﻿const router = require("express").Router();
+const c = require("../controllers/supervisorController");
+const { authenticate, authorize } = require("../middleware/auth");
+router.use(authenticate, authorize("supervisor","manager"));
+router.get("/tasks", c.getAllActiveTasks);
+router.post("/tasks", c.createTask);
+router.patch("/tasks/:id/assign", c.assignTask);
+router.get("/technicians", c.getTechnicians);
+router.get("/requisitions", c.getRequisitions);
+router.patch("/requisitions/:id", c.reviewRequisition);
+module.exports = router;

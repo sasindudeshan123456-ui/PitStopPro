@@ -1,0 +1,14 @@
+﻿const router = require("express").Router();
+const c = require("../controllers/inventoryController");
+const { authenticate, authorize } = require("../middleware/auth");
+router.use(authenticate);
+router.get("/low-stock", c.getLowStock);
+router.get("/transactions", c.getAllTransactions);
+router.get("/", c.getAll);
+router.post("/", authorize("storekeeper","manager"), c.create);
+router.get("/:id", c.getOne);
+router.patch("/:id", authorize("storekeeper","manager"), c.update);
+router.post("/:id/stock-in", authorize("storekeeper","manager"), c.stockIn);
+router.post("/:id/stock-out", authorize("storekeeper","manager","advisor"), c.stockOut);
+router.post("/requisitions", authorize("supervisor","technician","manager"), c.createRequisition);
+module.exports = router;
