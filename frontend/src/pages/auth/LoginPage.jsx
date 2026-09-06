@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import api from "../../api/axios";
 import toast from "react-hot-toast";
 import garageHero from "../../assets/garage_hero.jpg";
+import logoImg from "../../assets/logo.png";
 
 const roleRedirects = { manager:"/manager", advisor:"/advisor", supervisor:"/supervisor", technician:"/technician", qc_inspector:"/technician", storekeeper:"/storekeeper", cashier:"/cashier", customer:"/customer" };
 
@@ -83,18 +84,11 @@ export default function LoginPage() {
       }}>
         <div style={{ width:"100%" }}>
 
-          {/* Logo */}
-          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:20 }}>
-            <div style={{
-              width:32, height:32, borderRadius:8,
-              background:"linear-gradient(135deg,#f59e0b,#d97706)",
-              display:"flex", alignItems:"center", justifyContent:"center",
-              fontSize:16, boxShadow:"0 3px 10px rgba(245,158,11,0.3)"
-            }}>🔧</div>
-            <span style={{ fontSize:18, fontWeight:800, color:"#111", letterSpacing:"-0.5px" }}>
-              PitStop<span style={{ color:"#f59e0b" }}>Pro</span>
-            </span>
+          {/* Official Logo */}
+          <div style={{ marginBottom:20 }}>
+            <img src={logoImg} alt="PitStop Performance Logo" style={{ maxHeight:44, maxWidth:"100%", objectFit:"contain" }} />
           </div>
+
 
           <h1 style={{ fontSize:22, fontWeight:800, color:"#0f172a", marginBottom:4, lineHeight:1.2 }}>
             {tab === "login" ? "Welcome back" : "Get Started Now"}

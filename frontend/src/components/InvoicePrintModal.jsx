@@ -1,4 +1,5 @@
 import { useState } from "react";
+import logoImg from "../assets/logo.png";
 
 export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, onRequestDiscount, isManager }) {
   const [payMethod, setPayMethod] = useState("cash");
@@ -49,7 +50,7 @@ export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, o
         {/* Modal Top Actions bar */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 24 }}>??</span>
+            <span style={{ fontSize: 24 }}>📄</span>
             <div>
               <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0 }}>Official Tax Invoice & Receipt</h3>
               <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>Invoice #{invoice.invoice_number || `INV-${invoice.id}`}</p>
@@ -60,12 +61,12 @@ export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, o
               padding: "8px 16px", borderRadius: 8, background: "linear-gradient(135deg, #f59e0b, #d97706)",
               color: "#fff", border: "none", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 6
             }}>
-              ??? Print / Save PDF
+              🖨️ Print / Save PDF
             </button>
             <button onClick={onClose} style={{
               padding: "8px 14px", borderRadius: 8, background: "rgba(255,255,255,0.1)",
               color: "#cbd5e1", border: "none", fontWeight: 600, fontSize: 13, cursor: "pointer"
-            }}>? Close</button>
+            }}>✕ Close</button>
           </div>
         </div>
 
@@ -74,9 +75,8 @@ export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, o
           {/* Header */}
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 28, borderBottom: "2px solid #f1f5f9", paddingBottom: 20 }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                <div style={{ width: 28, height: 28, background: "#f59e0b", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900 }}>??</div>
-                <span style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", letterSpacing: "-0.5px" }}>PitStop<span style={{ color: "#d97706" }}>Pro</span></span>
+              <div style={{ marginBottom: 8 }}>
+                <img src={logoImg} alt="PitStop Performance Logo" style={{ height: 48, objectFit: "contain" }} />
               </div>
               <p style={{ fontSize: 12, color: "#475569", margin: 0, lineHeight: 1.5 }}>
                 Premier Vehicle Workshop & Service Center<br />
@@ -132,7 +132,7 @@ export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, o
               {invoice.tasks?.map((t, idx) => (
                 <tr key={`task-${idx}`} style={{ borderBottom: "1px solid #f1f5f9" }}>
                   <td style={{ padding: "10px 12px" }}>
-                    <span style={{ fontWeight: 600 }}>??? [Labor] {t.task_name}</span>
+                    <span style={{ fontWeight: 600 }}>🛠️ [Labor] {t.task_name}</span>
                     <span style={{ fontSize: 11, color: "#64748b", display: "block" }}>Bay: {t.bay_type || "Mechanical"}</span>
                   </td>
                   <td style={{ padding: "10px 12px", textAlign: "center" }}>1</td>
@@ -144,7 +144,7 @@ export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, o
               {invoice.parts?.map((p, idx) => (
                 <tr key={`part-${idx}`} style={{ borderBottom: "1px solid #f1f5f9" }}>
                   <td style={{ padding: "10px 12px" }}>
-                    <span style={{ fontWeight: 600 }}>?? [Part/Material] {p.item_name}</span>
+                    <span style={{ fontWeight: 600 }}>📦 [Part/Material] {p.item_name}</span>
                     <span style={{ fontSize: 11, color: "#64748b", display: "block" }}>Part #: {p.part_number || "GEN-01"}</span>
                   </td>
                   <td style={{ padding: "10px 12px", textAlign: "center" }}>{p.quantity}</td>
@@ -162,8 +162,8 @@ export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, o
               <p style={{ margin: 0 }}>1. All repair work carries a 3-month / 5,000 km warranty.</p>
               <p style={{ margin: 0 }}>2. Electrical components are non-refundable.</p>
               <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{ width: 50, height: 50, background: "#f1f5f9", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>??</div>
-                <span style={{ fontSize: 10, color: "#94a3b8" }}>PitStopPro Official Digital Signature Verified</span>
+                <div style={{ width: 50, height: 50, background: "#f1f5f9", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🏁</div>
+                <span style={{ fontSize: 10, color: "#94a3b8" }}>PitStop Performance Official Digital Signature Verified</span>
               </div>
             </div>
 
@@ -195,7 +195,7 @@ export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, o
           <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.1)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
             {/* Discount Request */}
             <div style={{ background: "rgba(30,41,59,0.5)", padding: 16, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)" }}>
-              <h4 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 10px 0", color: "#fbbf24" }}>??? Manager Discount Sign-Off (US11)</h4>
+              <h4 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 10px 0", color: "#fbbf24" }}>🏷️ Manager Discount Sign-Off (US11)</h4>
               <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
                 <input type="number" placeholder="Discount (LKR)" value={discountInput} onChange={e => setDiscountInput(e.target.value)}
                   style={{ width: 140, padding: "8px 10px", borderRadius: 6, background: "#1e293b", border: "1px solid #334155", color: "#fff", fontSize: 13 }} />
@@ -212,7 +212,7 @@ export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, o
 
             {/* Payment Recording */}
             <div style={{ background: "rgba(30,41,59,0.5)", padding: 16, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)" }}>
-              <h4 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 10px 0", color: "#4ade80" }}>?? Record Payment (US13)</h4>
+              <h4 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 10px 0", color: "#4ade80" }}>💳 Record Payment (US13)</h4>
               <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
                 {["cash", "card", "bank_transfer"].map(m => (
                   <button key={m} type="button" onClick={() => setPayMethod(m)} style={{
@@ -236,4 +236,3 @@ export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, o
     </div>
   );
 }
-
