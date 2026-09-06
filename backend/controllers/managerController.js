@@ -1,4 +1,4 @@
-﻿const jobCardModel = require("../models/jobCardModel");
+const jobCardModel = require("../models/jobCardModel");
 const invoiceModel = require("../models/invoiceModel");
 const userModel = require("../models/userModel");
 
@@ -30,4 +30,12 @@ const getAllStaff = async (req, res) => {
   try { res.json(await userModel.getAll()); }
   catch (err) { res.status(500).json({ message: err.message }); }
 };
-module.exports = { getDashboard, getPendingApprovals, approveJob, rejectJob, getAllStaff };
+const updateUser = async (req, res) => {
+  try {
+    await userModel.updateUser(req.params.id, req.body);
+    res.json({ message: "User updated successfully" });
+  } catch (err) { res.status(500).json({ message: err.message }); }
+};
+
+module.exports = { getDashboard, getPendingApprovals, approveJob, rejectJob, getAllStaff, updateUser };
+

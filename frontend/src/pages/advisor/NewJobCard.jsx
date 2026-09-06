@@ -1,8 +1,9 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import toast from "react-hot-toast";
 import { Search, Plus, Upload, ArrowLeft } from "lucide-react";
+import WalkaroundDamageLogger from "../../components/WalkaroundDamageLogger";
 
 export default function NewJobCard() {
   const navigate = useNavigate();
@@ -15,8 +16,10 @@ export default function NewJobCard() {
   const [newVehicle, setNewVehicle] = useState({ make:"", model:"", year: new Date().getFullYear(), license_plate:"", color:"", mileage:"", vin:"" });
   const [addingVehicle, setAddingVehicle] = useState(false);
   const [jobForm, setJobForm] = useState({ reported_issue:"", diagnosis_notes:"", estimated_cost:"" });
+  const [damageLogs, setDamageLogs] = useState([]);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
+
 
   const searchCustomers = async () => {
     if (!customerSearch.trim()) return;
@@ -50,8 +53,14 @@ export default function NewJobCard() {
     if (!jobForm.reported_issue) return toast.error("Reported issue required");
     setLoading(true);
     try {
-      const res = await api.post("/job-cards", { vehicle_id: selectedVehicle.id, customer_id: selectedCustomer.id, ...jobForm });
+      const res = await api.post("/job-cards", {
+        vehicle_id: selectedVehicle.id,
+        customer_id: selectedCustomer.id,
+        exterior_damage: damageLogs.length ? JSON.stringify(damageLogs) : null,
+        ...jobForm
+      });
       const jobId = res.data.id;
+
       if (images.length) {
         const fd = new FormData();
         images.forEach(img => fd.append("images", img));
@@ -173,8 +182,13 @@ export default function NewJobCard() {
             <label className="form-label">Initial Diagnosis Notes</label>
             <textarea className="form-control" rows={3} placeholder="Advisor's initial assessment..." value={jobForm.diagnosis_notes} onChange={setJF("diagnosis_notes")}/>
           </div>
+          <div className="form-group mb-16">
+            <WalkaroundDamageLogger value={damageLogs} onChange={setDamageLogs} />
+          </div>
+
           <div className="form-group">
             <label className="form-label">Estimated Cost (LKR)</label>
+
             <input className="form-control" type="number" placeholder="0.00" value={jobForm.estimated_cost} onChange={setJF("estimated_cost")}/>
             {parseFloat(jobForm.estimated_cost) > 5000 && (
               <div className="alert alert-warning" style={{marginTop:8}}>⚠️ Estimate exceeds LKR 5,000 — Manager approval required</div>

@@ -1,4 +1,4 @@
-﻿const db = require("../config/db");
+const db = require("../config/db");
 
 const findByEmail = async (email) => {
   const [rows] = await db.query("SELECT * FROM users WHERE email = ? AND is_active = 1", [email]);
@@ -33,4 +33,12 @@ const getAll = async () => {
   return rows;
 };
 
-module.exports = { findByEmail, findById, create, getByRole, getAll };
+const updateUser = async (id, { role, is_active, phone, full_name }) => {
+  await db.query(
+    "UPDATE users SET role = COALESCE(?, role), is_active = COALESCE(?, is_active), phone = COALESCE(?, phone), full_name = COALESCE(?, full_name) WHERE id = ?",
+    [role||null, is_active!==undefined?is_active:null, phone||null, full_name||null, id]
+  );
+};
+
+module.exports = { findByEmail, findById, create, getByRole, getAll, updateUser };
+

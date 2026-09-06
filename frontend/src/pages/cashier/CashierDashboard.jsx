@@ -1,9 +1,11 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../../api/axios";
 import toast from "react-hot-toast";
 import { Plus, Printer, CreditCard } from "lucide-react";
+import InvoicePrintModal from "../../components/InvoicePrintModal";
 
 const fmt = n => `LKR ${Number(n||0).toLocaleString("en-LK",{minimumFractionDigits:2})}`;
+
 
 export default function CashierDashboard() {
   const [invoices, setInvoices] = useState([]);
@@ -11,8 +13,10 @@ export default function CashierDashboard() {
   const [selected, setSelected] = useState(null);
   const [detail, setDetail] = useState(null);
   const [payModal, setPayModal] = useState(null);
+  const [showPrintModal, setShowPrintModal] = useState(false);
   const [payForm, setPayForm] = useState({ amount:"", method:"cash", reference:"" });
   const [newInvModal, setNewInvModal] = useState(false);
+
   const [invForm, setInvForm] = useState({ job_card_id:"", items:[{description:"",type:"labor",quantity:1,unit_price:""}], discount_pct:0, tax_pct:0 });
 
   const load = async () => {
@@ -114,15 +118,61 @@ export default function CashierDashboard() {
                 <div style={{fontWeight:700,fontSize:18,marginTop:8,color:"var(--accent)"}}>Total: {fmt(detail.total)}</div>
               </div>
               {detail.status !== "paid" && detail.status !== "cancelled" && (
-                <button className="btn btn-primary" style={{width:"100%",justifyContent:"center",marginTop:16}} onClick={()=>{setPayModal(selected);setPayForm({amount:detail.total,method:"cash",reference:""})}}>
-                  <CreditCard size={16}/> Record Payment
-                </button>
+                <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
+                  <button className="btn btn-secondary" style={{ flex: 1, justifyContent: "center" }} onClick={() => setShowPrintModal(true)}>
+                    <Printer size={16} /> Print / Save PDF Invoice (US12)
+                  </button>
+                  <button className="btn btn-primary" style={{ flex: 1, justifyContent: "center" }} onClick={() => { setPayModal(selected); setPayForm({ amount: detail.total, method: "cash", reference: "" }); }}>
+                    <CreditCard size={16} /> Record Payment (US13)
+                  </button>
+                </div>
               )}
-              {detail.status === "paid" && <div className="alert alert-success" style={{marginTop:12}}>✅ Payment received</div>}
+              {detail.status === "paid" && (
+                <div style={{ marginTop: 12 }}>
+                  <div className="alert alert-success" style={{ marginBottom: 10 }}>✅ Payment received</div>
+                  <button className="btn btn-secondary" style={{ width: "100%", justifyContent: "center" }} onClick={() => setShowPrintModal(true)}>
+                    <Printer size={16} /> View & Print Tax Receipt (US12)
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
+
+      {showPrintModal && detail && (
+        <InvoicePrintModal
+          invoice={{
+            id: detail.id,
+            invoice_number: detail.invoice_number,
+            job_number: detail.job_number,
+            customer_name: detail.customer_name,
+            customer_phone: detail.customer_phone,
+            customer_email: detail.customer_email,
+            license_plate: detail.license_plate,
+            make: detail.make,
+            model: detail.model,
+            status: detail.status,
+            discount_amount: detail.discount_amount,
+            tasks: detail.items?.filter(i => i.type === "labor") || [],
+            parts: detail.items?.filter(i => i.type === "part") || []
+          }}
+          onClose={() => setShowPrintModal(false)}
+          onRecordPayment={async (invId, method, amt) => {
+            await api.post(`/billing/${invId}/payment`, { amount: amt, method });
+            toast.success("Payment recorded!");
+            setShowPrintModal(false);
+            viewInvoice(invId);
+            load();
+          }}
+          onRequestDiscount={async (invId, discountAmt, reason) => {
+            await api.post(`/billing/invoices/${invId}/request-discount`, { discount_amount: discountAmt, reason });
+            toast.success("Discount request submitted!");
+            setShowPrintModal(false);
+          }}
+        />
+      )}
+
 
       {payModal && (
         <div className="modal-overlay" onClick={()=>setPayModal(null)}>

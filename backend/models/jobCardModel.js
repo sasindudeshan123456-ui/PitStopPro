@@ -1,20 +1,21 @@
-﻿const db = require("../config/db");
+const db = require("../config/db");
 
 const genJobNumber = () => {
   const d = new Date();
   return `JC-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}-${Date.now().toString().slice(-4)}`;
 };
 
-const create = async ({ vehicle_id, customer_id, advisor_id, reported_issue, diagnosis_notes, estimated_cost }) => {
+const create = async ({ vehicle_id, customer_id, advisor_id, reported_issue, diagnosis_notes, estimated_cost, exterior_damage }) => {
   const job_number = genJobNumber();
   const approval_required = estimated_cost && parseFloat(estimated_cost) > 5000 ? 1 : 0;
   const approval_status = approval_required ? "pending" : "not_required";
   const [r] = await db.query(
-    `INSERT INTO job_cards (job_number, vehicle_id, customer_id, advisor_id, reported_issue, diagnosis_notes, estimated_cost, approval_required, approval_status)
-     VALUES (?,?,?,?,?,?,?,?,?)`,
-    [job_number, vehicle_id, customer_id, advisor_id, reported_issue, diagnosis_notes||null, estimated_cost||0, approval_required, approval_status]);
+    `INSERT INTO job_cards (job_number, vehicle_id, customer_id, advisor_id, reported_issue, diagnosis_notes, estimated_cost, approval_required, approval_status, exterior_damage)
+     VALUES (?,?,?,?,?,?,?,?,?,?)`,
+    [job_number, vehicle_id, customer_id, advisor_id, reported_issue, diagnosis_notes||null, estimated_cost||0, approval_required, approval_status, exterior_damage||null]);
   return { id: r.insertId, job_number };
 };
+
 
 const getAll = async () => {
   const [rows] = await db.query(
@@ -100,4 +101,13 @@ const getStats = async () => {
   return rows[0];
 };
 
-module.exports = { create, getAll, findById, getByCustomer, updateStatus, approve, reject, getPendingApprovals, addImage, getImages, getStats };
+const updateQC = async (id, status, notes) => {
+  await db.query("UPDATE job_cards SET qc_status = ?, qc_notes = ? WHERE id = ?", [status, notes||null, id]);
+};
+
+const updateDiscount = async (id, requested, approved) => {
+  await db.query("UPDATE job_cards SET discount_requested = ?, discount_approved = ? WHERE id = ?", [requested, approved ? 1 : 0, id]);
+};
+
+module.exports = { create, getAll, findById, getByCustomer, updateStatus, approve, reject, getPendingApprovals, addImage, getImages, getStats, updateQC, updateDiscount };
+
