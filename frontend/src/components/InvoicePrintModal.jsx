@@ -9,13 +9,21 @@ export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, o
 
   if (!invoice) return null;
 
+  const itemsList = invoice.items || [];
   const partsTotal = invoice.parts?.reduce((sum, p) => sum + (p.unit_price * p.quantity), 0) || 0;
   const laborTotal = invoice.tasks?.reduce((sum, t) => sum + (parseFloat(t.cost) || 0), 0) || 0;
-  const subtotal = partsTotal + laborTotal;
+  const itemsTotal = itemsList.reduce((sum, i) => sum + ((parseFloat(i.unit_price) || 0) * (parseFloat(i.quantity) || 1)), 0);
+
+  const subtotal = partsTotal + laborTotal > 0
+    ? partsTotal + laborTotal
+    : itemsTotal > 0
+    ? itemsTotal
+    : parseFloat(invoice.subtotal || invoice.total || 0);
+
   const discount = parseFloat(invoice.discount_amount) || 0;
   const taxable = Math.max(0, subtotal - discount);
-  const vat = taxable * 0.18; // 18% VAT in Sri Lanka
-  const grandTotal = taxable + vat;
+  const vat = parseFloat(invoice.tax_amount) || (taxable * (parseFloat(invoice.tax_pct) || 0) / 100);
+  const grandTotal = parseFloat(invoice.total) || (taxable + vat);
 
   const handlePrint = () => {
     window.print();
@@ -90,11 +98,11 @@ export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, o
                 background: invoice.status === "paid" ? "#dcfce7" : "#fef3c7",
                 color: invoice.status === "paid" ? "#166534" : "#92400e", textTransform: "uppercase"
               }}>
-                {invoice.status || "UNPAID"}
+                {invoice.status || "PAID"}
               </span>
               <p style={{ fontSize: 12, color: "#64748b", marginTop: 8, marginBottom: 0 }}>
                 Date: <strong>{new Date(invoice.created_at || Date.now()).toLocaleDateString("en-GB")}</strong><br />
-                Job Card #: <strong>{invoice.job_number}</strong>
+                {invoice.job_number && <>Job Card #: <strong>{invoice.job_number}</strong></>}
               </p>
             </div>
           </div>
@@ -103,17 +111,18 @@ export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, o
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, background: "#f8fafc", padding: 16, borderRadius: 8, marginBottom: 24, border: "1px solid #e2e8f0" }}>
             <div>
               <p style={{ fontSize: 11, fontWeight: 800, color: "#64748b", textTransform: "uppercase", marginBottom: 4 }}>Customer Details</p>
-              <p style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#0f172a" }}>{invoice.customer_name}</p>
+              <p style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#0f172a" }}>{invoice.customer_name || "Valued Customer"}</p>
               <p style={{ fontSize: 12, color: "#475569", margin: 0 }}>Phone: {invoice.customer_phone || "N/A"}</p>
               <p style={{ fontSize: 12, color: "#475569", margin: 0 }}>Email: {invoice.customer_email || "N/A"}</p>
             </div>
             <div>
-              <p style={{ fontSize: 11, fontWeight: 800, color: "#64748b", textTransform: "uppercase", marginBottom: 4 }}>Vehicle Specs</p>
+              <p style={{ fontSize: 11, fontWeight: 800, color: "#64748b", textTransform: "uppercase", marginBottom: 4 }}>Vehicle / Order Specs</p>
               <p style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#0f172a" }}>
-                {invoice.license_plate} — <span style={{ color: "#d97706" }}>{invoice.make} {invoice.model}</span>
+                {invoice.license_plate ? `${invoice.license_plate} — ` : ""}
+                <span style={{ color: "#d97706" }}>{invoice.make ? `${invoice.make} ${invoice.model}` : "Workshop Service Order"}</span>
               </p>
-              <p style={{ fontSize: 12, color: "#475569", margin: 0 }}>Mileage: {invoice.mileage ? `${invoice.mileage.toLocaleString()} km` : "N/A"}</p>
-              <p style={{ fontSize: 12, color: "#475569", margin: 0 }}>Year / Color: {invoice.year || "-"} ({invoice.color || "-"})</p>
+              {invoice.mileage && <p style={{ fontSize: 12, color: "#475569", margin: 0 }}>Mileage: {invoice.mileage.toLocaleString()} km</p>}
+              {invoice.year && <p style={{ fontSize: 12, color: "#475569", margin: 0 }}>Year / Color: {invoice.year} ({invoice.color || "-"})</p>}
             </div>
           </div>
 
@@ -128,6 +137,17 @@ export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, o
               </tr>
             </thead>
             <tbody style={{ fontSize: 13, color: "#1e293b" }}>
+              {/* Invoice Items */}
+              {itemsList.map((it, idx) => (
+                <tr key={`item-${idx}`} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                  <td style={{ padding: "10px 12px" }}>
+                    <span style={{ fontWeight: 600 }}>{it.type === "part" ? "📦 [Part]" : it.type === "labor" ? "🛠️ [Service/Labor]" : "🛒 [Item]"} {it.description || it.name}</span>
+                  </td>
+                  <td style={{ padding: "10px 12px", textAlign: "center" }}>{it.quantity || 1}</td>
+                  <td style={{ padding: "10px 12px", textAlign: "right" }}>{parseFloat(it.unit_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td style={{ padding: "10px 12px", textAlign: "right", fontWeight: 600 }}>{((parseFloat(it.unit_price) || 0) * (parseFloat(it.quantity) || 1)).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
               {/* Labor Tasks */}
               {invoice.tasks?.map((t, idx) => (
                 <tr key={`task-${idx}`} style={{ borderBottom: "1px solid #f1f5f9" }}>
@@ -152,6 +172,18 @@ export default function InvoicePrintModal({ invoice, onClose, onRecordPayment, o
                   <td style={{ padding: "10px 12px", textAlign: "right", fontWeight: 600 }}>{(p.unit_price * p.quantity).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                 </tr>
               ))}
+              {/* Fallback Single Line if no items array */}
+              {!itemsList.length && !invoice.tasks?.length && !invoice.parts?.length && (
+                <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
+                  <td style={{ padding: "10px 12px" }}>
+                    <span style={{ fontWeight: 600 }}>🛠️ Garage Service & Repairs</span>
+                    <span style={{ fontSize: 11, color: "#64748b", display: "block" }}>Job #: {invoice.job_number || "JC-SERVICE"}</span>
+                  </td>
+                  <td style={{ padding: "10px 12px", textAlign: "center" }}>1</td>
+                  <td style={{ padding: "10px 12px", textAlign: "right" }}>{subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td style={{ padding: "10px 12px", textAlign: "right", fontWeight: 600 }}>{subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                </tr>
+              )}
             </tbody>
           </table>
 

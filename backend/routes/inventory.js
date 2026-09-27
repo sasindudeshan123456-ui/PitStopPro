@@ -1,4 +1,4 @@
-﻿const router = require("express").Router();
+const router = require("express").Router();
 const c = require("../controllers/inventoryController");
 const { authenticate, authorize } = require("../middleware/auth");
 router.use(authenticate);
@@ -10,5 +10,6 @@ router.get("/:id", c.getOne);
 router.patch("/:id", authorize("storekeeper","manager"), c.update);
 router.post("/:id/stock-in", authorize("storekeeper","manager"), c.stockIn);
 router.post("/:id/stock-out", authorize("storekeeper","manager","advisor"), c.stockOut);
+router.delete("/:id", authorize("storekeeper","manager"), c.deleteItem);
 router.post("/requisitions", authorize("supervisor","technician","manager"), c.createRequisition);
 module.exports = router;

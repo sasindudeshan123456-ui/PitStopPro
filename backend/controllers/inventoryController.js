@@ -1,4 +1,4 @@
-﻿const inventoryModel = require("../models/inventoryModel");
+const inventoryModel = require("../models/inventoryModel");
 
 const getAll = async (req, res) => {
   try { res.json(await inventoryModel.getAll()); }
@@ -46,4 +46,10 @@ const createRequisition = async (req, res) => {
   try { res.status(201).json({ id: await inventoryModel.createRequisition({ ...req.body, requested_by: req.user.id }) }); }
   catch (err) { res.status(500).json({ message: err.message }); }
 };
-module.exports = { getAll, getOne, create, update, stockIn, stockOut, getLowStock, getAllTransactions, createRequisition };
+const deleteItem = async (req, res) => {
+  try {
+    await inventoryModel.deleteItem(req.params.id);
+    res.json({ message: "Item deleted" });
+  } catch (err) { res.status(500).json({ message: err.message }); }
+};
+module.exports = { getAll, getOne, create, update, stockIn, stockOut, getLowStock, getAllTransactions, createRequisition, deleteItem };

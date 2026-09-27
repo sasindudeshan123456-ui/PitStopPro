@@ -1,20 +1,20 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import toast from "react-hot-toast";
 import { Plus, AlertTriangle, TrendingUp, TrendingDown } from "lucide-react";
 
 export default function StorekeeperDashboard() {
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [lowStock, setLowStock] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [tab, setTab] = useState("inventory");
   const [loading, setLoading] = useState(true);
-  const [showAdd, setShowAdd] = useState(false);
   const [stockModal, setStockModal] = useState(null);
   const [stockType, setStockType] = useState("stock_in");
   const [stockQty, setStockQty] = useState("");
   const [stockRef, setStockRef] = useState("");
-  const [form, setForm] = useState({ item_code:"", name:"", category:"spare_part", unit:"piece", unit_price:"", quantity:"", low_stock_threshold:"5", supplier:"" });
 
   const load = async () => {
     try {
@@ -26,11 +26,6 @@ export default function StorekeeperDashboard() {
   };
   useEffect(() => { load(); }, []);
 
-  const addItem = async () => {
-    try { await api.post("/inventory", form); toast.success("Item added"); setShowAdd(false); load(); }
-    catch (err) { toast.error(err.response?.data?.message || "Failed"); }
-  };
-
   const doStock = async () => {
     try {
       const endpoint = stockType === "stock_in" ? `/inventory/${stockModal.id}/stock-in` : `/inventory/${stockModal.id}/stock-out`;
@@ -39,14 +34,12 @@ export default function StorekeeperDashboard() {
     } catch (err) { toast.error(err.response?.data?.message || "Failed"); }
   };
 
-  const sf = k => e => setForm(f => ({...f, [k]: e.target.value}));
-  const CATS = ["spare_part","paint","consumable","tool","other"];
 
   return (
     <div className="fade-in">
       <div className="page-header flex-between">
         <div><h1 className="page-title">Storekeeper</h1><p className="page-subtitle">Parts & consumables inventory</p></div>
-        <button className="btn btn-primary" onClick={()=>setShowAdd(true)}><Plus size={16}/> Add Item</button>
+        <button className="btn btn-primary" onClick={() => navigate("/storekeeper/add-item")}><Plus size={16}/> Add Item</button>
       </div>
 
       {lowStock.length > 0 && (
@@ -123,28 +116,7 @@ export default function StorekeeperDashboard() {
         )}
       </>}
 
-      {showAdd && (
-        <div className="modal-overlay" onClick={()=>setShowAdd(false)}>
-          <div className="modal modal-lg" onClick={e=>e.stopPropagation()}>
-            <div className="modal-header"><h2 className="modal-title">Add Inventory Item</h2><button className="modal-close" onClick={()=>setShowAdd(false)}>×</button></div>
-            <div className="form-row">
-              <div className="form-group"><label className="form-label">Item Code</label><input className="form-control" placeholder="OIL-5W30-1L" value={form.item_code} onChange={sf("item_code")}/></div>
-              <div className="form-group"><label className="form-label">Name</label><input className="form-control" placeholder="Engine Oil 5W-30 (1L)" value={form.name} onChange={sf("name")}/></div>
-            </div>
-            <div className="form-row-3">
-              <div className="form-group"><label className="form-label">Category</label><select className="form-control" value={form.category} onChange={sf("category")}>{CATS.map(c=><option key={c}>{c}</option>)}</select></div>
-              <div className="form-group"><label className="form-label">Unit</label><input className="form-control" placeholder="piece" value={form.unit} onChange={sf("unit")}/></div>
-              <div className="form-group"><label className="form-label">Unit Price (LKR)</label><input className="form-control" type="number" value={form.unit_price} onChange={sf("unit_price")}/></div>
-            </div>
-            <div className="form-row-3">
-              <div className="form-group"><label className="form-label">Initial Quantity</label><input className="form-control" type="number" value={form.quantity} onChange={sf("quantity")}/></div>
-              <div className="form-group"><label className="form-label">Low Stock Threshold</label><input className="form-control" type="number" value={form.low_stock_threshold} onChange={sf("low_stock_threshold")}/></div>
-              <div className="form-group"><label className="form-label">Supplier</label><input className="form-control" value={form.supplier} onChange={sf("supplier")}/></div>
-            </div>
-            <div className="modal-footer"><button className="btn btn-secondary" onClick={()=>setShowAdd(false)}>Cancel</button><button className="btn btn-primary" onClick={addItem}>Add Item</button></div>
-          </div>
-        </div>
-      )}
+
 
       {stockModal && (
         <div className="modal-overlay" onClick={()=>setStockModal(null)}>

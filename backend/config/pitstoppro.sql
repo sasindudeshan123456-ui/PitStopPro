@@ -1,4 +1,4 @@
-﻿-- =====================================================
+-- =====================================================
 -- PitStopPro Workshop Management System
 -- Database Schema + Seed Data
 -- MySQL | XAMPP | LKR Currency
@@ -218,13 +218,7 @@ CREATE TABLE payments (
 
 -- SEED: Staff users (password = Admin@1234)
 INSERT INTO users (full_name, email, password, role, phone) VALUES
-("Workshop Manager",  "manager@pitstoppro.lk",    "$2b$10$8K1p/a0dclxFJQ1oPdDlPuU8gKaKr8e.Y7S9KDpJaHvJhFuqNH7Q6", "manager",     "0771234001"),
-("Priya Kumari",      "advisor@pitstoppro.lk",    "$2b$10$8K1p/a0dclxFJQ1oPdDlPuU8gKaKr8e.Y7S9KDpJaHvJhFuqNH7Q6", "advisor",     "0771234002"),
-("Nimal Perera",      "supervisor@pitstoppro.lk", "$2b$10$8K1p/a0dclxFJQ1oPdDlPuU8gKaKr8e.Y7S9KDpJaHvJhFuqNH7Q6", "supervisor",  "0771234003"),
-("Kamal Silva",       "tech@pitstoppro.lk",       "$2b$10$8K1p/a0dclxFJQ1oPdDlPuU8gKaKr8e.Y7S9KDpJaHvJhFuqNH7Q6", "technician",  "0771234004"),
-("Sumudu Fernando",   "qc@pitstoppro.lk",         "$2b$10$8K1p/a0dclxFJQ1oPdDlPuU8gKaKr8e.Y7S9KDpJaHvJhFuqNH7Q6", "qc_inspector","0771234005"),
-("Ravi Jayawardena",  "store@pitstoppro.lk",      "$2b$10$8K1p/a0dclxFJQ1oPdDlPuU8gKaKr8e.Y7S9KDpJaHvJhFuqNH7Q6", "storekeeper", "0771234006"),
-("Amali Wickrama",    "cashier@pitstoppro.lk",    "$2b$10$8K1p/a0dclxFJQ1oPdDlPuU8gKaKr8e.Y7S9KDpJaHvJhFuqNH7Q6", "cashier",     "0771234007");
+("Workshop Manager",  "manager@pitstoppro.lk",    "$2b$10$8K1p/a0dclxFJQ1oPdDlPuU8gKaKr8e.Y7S9KDpJaHvJhFuqNH7Q6", "manager",     "0771234001");
 
 -- SEED: Inventory
 INSERT INTO inventory_items (item_code, name, category, unit, unit_price, quantity, low_stock_threshold, supplier) VALUES

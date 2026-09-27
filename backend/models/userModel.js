@@ -5,6 +5,11 @@ const findByEmail = async (email) => {
   return rows[0];
 };
 
+const findByEmailOrUsername = async (identifier) => {
+  const [rows] = await db.query("SELECT * FROM users WHERE email = ? OR full_name = ?", [identifier, identifier]);
+  return rows[0];
+};
+
 const findById = async (id) => {
   const [rows] = await db.query("SELECT id, full_name, email, role, phone, is_active, created_at FROM users WHERE id = ?", [id]);
   return rows[0];
@@ -34,12 +39,32 @@ const getAll = async () => {
   return rows;
 };
 
-const updateUser = async (id, { role, is_active, phone, full_name }) => {
-  await db.query(
-    "UPDATE users SET role = COALESCE(?, role), is_active = COALESCE(?, is_active), phone = COALESCE(?, phone), full_name = COALESCE(?, full_name) WHERE id = ?",
-    [role||null, is_active!==undefined?is_active:null, phone||null, full_name||null, id]
-  );
+const updateUser = async (id, { role, is_active, phone, full_name, email, password }) => {
+  const fields = [];
+  const values = [];
+
+  if (role !== undefined && role !== null) { fields.push("role = ?"); values.push(role); }
+  if (is_active !== undefined && is_active !== null) { fields.push("is_active = ?"); values.push(is_active); }
+  if (phone !== undefined) { fields.push("phone = ?"); values.push(phone); }
+  if (full_name !== undefined && full_name !== null) { fields.push("full_name = ?"); values.push(full_name); }
+  if (email !== undefined && email !== null) { fields.push("email = ?"); values.push(email); }
+  if (password !== undefined && password) { fields.push("password = ?"); values.push(password); }
+
+  if (!fields.length) return;
+  values.push(id);
+  await db.query(`UPDATE users SET ${fields.join(", ")} WHERE id = ?`, values);
 };
 
-module.exports = { findByEmail, findById, create, getByRole, getAll, updateUser };
+const deleteUser = async (id) => {
+  // Nullify FK references before deleting to avoid constraint failures
+  try { await db.query("UPDATE job_cards SET advisor_id = 1 WHERE advisor_id = ?", [id]); } catch (e) {}
+  try { await db.query("UPDATE job_cards SET approved_by = NULL WHERE approved_by = ?", [id]); } catch (e) {}
+  try { await db.query("UPDATE task_assignments SET assigned_by = 1 WHERE assigned_by = ?", [id]); } catch (e) {}
+  try { await db.query("UPDATE requisitions SET reviewed_by = NULL WHERE reviewed_by = ?", [id]); } catch (e) {}
+  try { await db.query("DELETE FROM task_assignments WHERE technician_id = ?", [id]); } catch (e) {}
+  try { await db.query("DELETE FROM labor_logs WHERE technician_id = ?", [id]); } catch (e) {}
+  await db.query("DELETE FROM users WHERE id = ?", [id]);
+};
+
+module.exports = { findByEmail, findByEmailOrUsername, findById, create, getByRole, getAll, updateUser, deleteUser };
 

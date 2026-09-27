@@ -1,10 +1,14 @@
-﻿const router = require("express").Router();
+const router = require("express").Router();
 const c = require("../controllers/billingController");
 const { authenticate, authorize } = require("../middleware/auth");
 router.use(authenticate);
 router.get("/", authorize("cashier","manager"), c.getAll);
 router.post("/", authorize("cashier","manager"), c.createInvoice);
-router.get("/:id", c.getOne);
+router.get("/store-orders", authorize("manager", "advisor", "cashier", "storekeeper"), c.getStoreOrders);
+router.patch("/store-orders/:id/approve", authorize("manager", "advisor", "cashier", "storekeeper"), c.approveStoreOrder);
+router.patch("/store-orders/:id/reject", authorize("manager", "advisor", "cashier", "storekeeper"), c.rejectStoreOrder);
+router.delete("/store-orders/:id", authorize("manager", "advisor", "cashier", "storekeeper"), c.deleteStoreOrder);
+router.get("/:id", authorize("cashier", "manager", "customer", "advisor"), c.getOne);
 router.post("/:id/payment", authorize("cashier","manager"), c.recordPayment);
 router.get("/customer/:customer_id", c.getByCustomer);
 module.exports = router;

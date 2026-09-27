@@ -1,4 +1,4 @@
-﻿const invoiceModel = require("../models/invoiceModel");
+const invoiceModel = require("../models/invoiceModel");
 const jobCardModel = require("../models/jobCardModel");
 const inventoryModel = require("../models/inventoryModel");
 
@@ -36,4 +36,88 @@ const getByCustomer = async (req, res) => {
   try { res.json(await invoiceModel.getByCustomer(req.params.customer_id)); }
   catch (err) { res.status(500).json({ message: err.message }); }
 };
-module.exports = { createInvoice, getAll, getOne, recordPayment, getByCustomer };
+
+const getStoreOrders = async (req, res) => {
+  try {
+    const orders = await invoiceModel.getStoreOrders();
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const notificationsModel = require("../models/notificationsModel");
+const db = require("../config/db");
+
+const approveStoreOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const inv = await invoiceModel.findById(id);
+    if (!inv) return res.status(404).json({ message: "Store order invoice not found" });
+    
+    await invoiceModel.updateStatus(id, "paid");
+    
+    try {
+      if (inv.customer_id) {
+        const [cust] = await db.query("SELECT user_id FROM customers WHERE id = ?", [inv.customer_id]);
+        if (cust.length && cust[0].user_id) {
+          await notificationsModel.create({
+            user_id: cust[0].user_id,
+            title: "✅ Store Order Approved & Confirmed",
+            message: `Your store order #${inv.invoice_number} has been verified and approved by the garage. You can now view and print your official receipt.`,
+            type: "system"
+          });
+        }
+      }
+    } catch (e) {}
+
+    res.json({ message: "Store order approved successfully! Official receipt is now active." });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const rejectStoreOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const inv = await invoiceModel.findById(id);
+    if (!inv) return res.status(404).json({ message: "Store order not found" });
+
+    await invoiceModel.updateStatus(id, "cancelled");
+
+    try {
+      if (inv.customer_id) {
+        const [cust] = await db.query("SELECT user_id FROM customers WHERE id = ?", [inv.customer_id]);
+        if (cust.length && cust[0].user_id) {
+          await notificationsModel.create({
+            user_id: cust[0].user_id,
+            title: "❌ Store Order Cancelled / Rejected",
+            message: `Your store order #${inv.invoice_number} was rejected by the garage. Please contact support.`,
+            type: "system"
+          });
+        }
+      }
+    } catch (e) {}
+
+    res.json({ message: "Store order rejected." });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const deleteStoreOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.query("DELETE FROM invoice_items WHERE invoice_id = ?", [id]);
+    await db.query("DELETE FROM payments WHERE invoice_id = ?", [id]);
+    await db.query("DELETE FROM invoices WHERE id = ?", [id]);
+    res.json({ message: "Store order record deleted successfully." });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+module.exports = {
+  createInvoice, getAll, getOne, recordPayment, getByCustomer,
+  getStoreOrders, approveStoreOrder, rejectStoreOrder, deleteStoreOrder
+};

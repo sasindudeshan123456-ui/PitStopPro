@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { Trash2 } from "lucide-react";
 
 const CAR_ZONES = [
-  { id: "front", name: "Front Bumper & Hood", icon: "??" },
-  { id: "left", name: "Left Side & Doors", icon: "??" },
-  { id: "right", name: "Right Side & Doors", icon: "??" },
-  { id: "rear", name: "Rear Bumper & Trunk", icon: "??" },
-  { id: "roof", name: "Roof & Windshield", icon: "???" },
+  { id: "front", name: "Front Bumper & Hood", icon: "🚗" },
+  { id: "left", name: "Left Side & Doors", icon: "⬅️" },
+  { id: "right", name: "Right Side & Doors", icon: "➡️" },
+  { id: "rear", name: "Rear Bumper & Trunk", icon: "🔙" },
+  { id: "roof", name: "Roof & Windshield", icon: "🔝" },
 ];
 
 const DAMAGE_TYPES = ["Scratch", "Dent", "Paint Chip", "Crack", "Rust", "Broken Light"];
@@ -40,8 +41,8 @@ export default function WalkaroundDamageLogger({ value, onChange }) {
   return (
     <div style={{ background: "rgba(15,23,42,0.6)", borderRadius: 12, padding: 18, border: "1px solid rgba(255,255,255,0.08)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-        <h4 style={{ fontSize: 15, fontWeight: 700, color: "#f8fafc", display: "flex", alignItems: "baseline", gap: 8 }}>
-          <span>??</span> Walkaround Vehicle Exterior Damage Log
+        <h4 style={{ fontSize: 15, fontWeight: 700, color: "#f8fafc", display: "flex", alignItems: "center", gap: 8 }}>
+          <span>🔍</span> Walkaround Vehicle Exterior Damage Log
         </h4>
         <span style={{ fontSize: 12, color: "#94a3b8" }}>{damages.length} defect(s) recorded</span>
       </div>
@@ -108,9 +109,27 @@ export default function WalkaroundDamageLogger({ value, onChange }) {
                   <span style={{ color: "#fbbf24", fontWeight: 600 }}>[{zInfo?.name}]</span>
                   <span style={{ color: "#f8fafc" }}>{d.type} — {d.note}</span>
                 </div>
-                <button type="button" onClick={() => removeDamage(d.id)} style={{
-                  background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 14, fontWeight: 700
-                }}>?</button>
+                <button
+                  type="button"
+                  onClick={() => removeDamage(d.id)}
+                  title="Remove this damage log"
+                  style={{
+                    background: "rgba(239, 68, 68, 0.15)",
+                    border: "1px solid rgba(239, 68, 68, 0.3)",
+                    borderRadius: 6,
+                    color: "#ef4444",
+                    cursor: "pointer",
+                    padding: "4px 8px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    transition: "all 0.2s"
+                  }}
+                >
+                  <Trash2 size={14} /> Delete
+                </button>
               </div>
             );
           })}

@@ -1,4 +1,4 @@
-﻿const db = require("../config/db");
+const db = require("../config/db");
 
 const getAll = async () => {
   const [rows] = await db.query("SELECT * FROM inventory_items ORDER BY name");
@@ -10,10 +10,10 @@ const findById = async (id) => {
   return rows[0];
 };
 
-const create = async ({ item_code, name, category, unit, unit_price, quantity, low_stock_threshold, description, supplier }) => {
+const create = async ({ item_code, name, category, unit, unit_price, quantity, low_stock_threshold, description, supplier, image_url }) => {
   const [r] = await db.query(
-    "INSERT INTO inventory_items (item_code, name, category, unit, unit_price, quantity, low_stock_threshold, description, supplier) VALUES (?,?,?,?,?,?,?,?,?)",
-    [item_code, name, category, unit||"piece", unit_price, quantity||0, low_stock_threshold||5, description||null, supplier||null]);
+    "INSERT INTO inventory_items (item_code, name, category, unit, unit_price, quantity, low_stock_threshold, description, supplier, image_url) VALUES (?,?,?,?,?,?,?,?,?,?)",
+    [item_code, name, category, unit||"piece", unit_price, quantity||0, low_stock_threshold||5, description||null, supplier||null, image_url||null]);
   return r.insertId;
 };
 
@@ -72,4 +72,8 @@ const updateRequisition = async (id, status, reviewed_by) => {
   await db.query("UPDATE requisitions SET status = ?, reviewed_by = ? WHERE id = ?", [status, reviewed_by, id]);
 };
 
-module.exports = { getAll, findById, create, update, adjustStock, getLowStock, getTransactions, getAllTransactions, getRequisitions, createRequisition, updateRequisition };
+const deleteItem = async (id) => {
+  await db.query("DELETE FROM inventory_items WHERE id = ?", [id]);
+};
+
+module.exports = { getAll, findById, create, update, adjustStock, getLowStock, getTransactions, getAllTransactions, getRequisitions, createRequisition, updateRequisition, deleteItem };

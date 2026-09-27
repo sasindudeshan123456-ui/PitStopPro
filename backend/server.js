@@ -1,4 +1,4 @@
-﻿require("dotenv").config();
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -18,6 +18,8 @@ app.use("/api/technician", require("./routes/technician"));
 app.use("/api/inventory",  require("./routes/inventory"));
 app.use("/api/billing",    require("./routes/billing"));
 app.use("/api/manager",    require("./routes/manager"));
+app.use("/api/notifications", require("./routes/notifications"));
+app.use("/api/appointments",  require("./routes/appointments"));
 
 app.get("/api/health", (_req, res) => res.json({ status: "ok", time: new Date() }));
 
