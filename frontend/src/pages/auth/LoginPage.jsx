@@ -222,6 +222,53 @@ export default function LoginPage() {
                   <span onClick={() => { setTab("register"); setErrors({}); }} style={{ color:"#f59e0b", fontWeight:600, cursor:"pointer", textDecoration:"underline" }}>Register here</span>
                 </p>
               </div>
+
+              {/* Quick Demo Access Badges */}
+              <div style={{ marginTop: 20, paddingTop: 14, borderTop: "1px dashed #cbd5e1" }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8, textAlign: "center" }}>
+                  ⚡ Quick Demo One-Click Sign In
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center" }}>
+                  {[
+                    { role: "Manager", email: "manager@pitstoppro.lk", bg: "#fef3c7", color: "#d97706" },
+                    { role: "Advisor", email: "advisor@pitstoppro.lk", bg: "#dbeafe", color: "#2563eb" },
+                    { role: "Cashier", email: "cashier@pitstoppro.lk", bg: "#dcfce7", color: "#16a34a" },
+                    { role: "Storekeeper", email: "storekeeper@pitstoppro.lk", bg: "#f3e8ff", color: "#9333ea" },
+                    { role: "Customer", email: "sasindu@gmail.com", bg: "#ffe4e6", color: "#e11d48" },
+                  ].map((demo) => (
+                    <button
+                      key={demo.role}
+                      type="button"
+                      onClick={async () => {
+                        setForm({ email: demo.email, password: "Admin@1234" });
+                        setLoading(true);
+                        try {
+                          const u = await login(demo.email, "Admin@1234");
+                          toast.success(`Logged in as ${u.name}!`);
+                          navigate(roleRedirects[u.role] || "/");
+                        } catch (err) {
+                          toast.error("Demo login failed");
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      style={{
+                        padding: "5px 10px",
+                        borderRadius: 6,
+                        border: "1px solid rgba(0,0,0,0.05)",
+                        background: demo.bg,
+                        color: demo.color,
+                        fontSize: 11,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                      }}
+                    >
+                      {demo.role}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </form>
           )}
 
