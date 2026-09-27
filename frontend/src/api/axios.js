@@ -21,14 +21,24 @@ api.interceptors.response.use(
     const isNetworkError = !err.response || err.code === "ERR_NETWORK" || err.message?.includes("Network Error");
     
     if (isNetworkError) {
-      if (!toastShown && window.location.pathname === "/login") {
-        toast.success("Demo Mode Activated: Displaying sample data!", { id: "demo-mode" });
-        toastShown = true;
-      }
-      
       const config = err.config || {};
       const mockData = getMockResponse(config.url || "", config.method || "get", config.data ? JSON.parse(config.data || "{}") : {});
       
+      // If mock response is an error (e.g. 401 invalid credentials)
+      if (mockData && mockData.error) {
+        return Promise.reject({
+          response: {
+            status: mockData.status || 401,
+            data: { message: mockData.error }
+          }
+        });
+      }
+
+      if (!toastShown && window.location.pathname === "/login") {
+        toast.success("Demo Mode Activated", { id: "demo-mode" });
+        toastShown = true;
+      }
+
       return Promise.resolve({
         data: mockData,
         status: 200,

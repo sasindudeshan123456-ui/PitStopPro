@@ -7,7 +7,8 @@ export const mockUsers = [
   { id: 4, name: "Senior Technician", email: "technician@pitstoppro.lk", role: "technician", phone: "0771234004", is_active: 1 },
   { id: 5, name: "Inventory Storekeeper", email: "storekeeper@pitstoppro.lk", role: "storekeeper", phone: "0771234005", is_active: 1 },
   { id: 6, name: "Billing Cashier", email: "cashier@pitstoppro.lk", role: "cashier", phone: "0771234006", is_active: 1 },
-  { id: 7, name: "Sasindu Deshan", email: "sasindu@gmail.com", role: "customer", phone: "0760840228", is_active: 1, customer_id: 1 }
+  { id: 7, name: "Sasindu Deshan", email: "sasindu@gmail.com", role: "customer", phone: "0760840228", is_active: 1, customer_id: 1 },
+  { id: 8, name: "Kelum Sampath", email: "kelumsampath@gmail.com", role: "customer", phone: "0912233789", is_active: 1, customer_id: 2 }
 ];
 
 export const mockInventory = [
@@ -118,19 +119,31 @@ export function getMockResponse(url, method = "get", body = {}) {
   const cleanUrl = url.replace("/api", "");
 
   if (cleanUrl.startsWith("/auth/login")) {
-    const email = (body.email || body.username || "").toLowerCase();
-    let matchedUser = mockUsers.find(u => u.email.toLowerCase() === email);
+    const emailInput = (body.email || body.username || "").toLowerCase().trim();
+    const passwordInput = (body.password || "").trim();
+
+    // Find exact user matching email
+    let matchedUser = mockUsers.find(u => u.email.toLowerCase() === emailInput);
+    
+    // If not exact match, check role keywords
     if (!matchedUser) {
-      if (email.includes("advisor")) matchedUser = mockUsers[1];
-      else if (email.includes("supervisor")) matchedUser = mockUsers[2];
-      else if (email.includes("tech")) matchedUser = mockUsers[3];
-      else if (email.includes("store")) matchedUser = mockUsers[4];
-      else if (email.includes("cashier")) matchedUser = mockUsers[5];
-      else if (email.includes("customer")) matchedUser = mockUsers[6];
-      else matchedUser = mockUsers[0]; // Default to Manager
+      if (emailInput.includes("manager")) matchedUser = mockUsers.find(u => u.role === "manager");
+      else if (emailInput.includes("advisor")) matchedUser = mockUsers.find(u => u.role === "advisor");
+      else if (emailInput.includes("supervisor")) matchedUser = mockUsers.find(u => u.role === "supervisor");
+      else if (emailInput.includes("tech")) matchedUser = mockUsers.find(u => u.role === "technician");
+      else if (emailInput.includes("store")) matchedUser = mockUsers.find(u => u.role === "storekeeper");
+      else if (emailInput.includes("cashier")) matchedUser = mockUsers.find(u => u.role === "cashier");
+      else if (emailInput.includes("kelum")) matchedUser = mockUsers.find(u => u.email === "kelumsampath@gmail.com");
+      else if (emailInput.includes("sasindu")) matchedUser = mockUsers.find(u => u.email === "sasindu@gmail.com");
     }
+
+    // If still no user found or password is provided and completely blank/invalid
+    if (!matchedUser) {
+      return { error: "Invalid email or password", status: 401 };
+    }
+
     return {
-      token: "demo_mock_jwt_token_2026",
+      token: `demo_mock_jwt_token_${matchedUser.role}_2026`,
       user: {
         id: matchedUser.id,
         name: matchedUser.name,
@@ -143,7 +156,8 @@ export function getMockResponse(url, method = "get", body = {}) {
   }
 
   if (cleanUrl.startsWith("/auth/me")) {
-    return mockUsers[0];
+    const storedUser = sessionStorage.getItem("psp_user") || localStorage.getItem("psp_user");
+    return storedUser ? JSON.parse(storedUser) : mockUsers[0];
   }
 
   if (cleanUrl.startsWith("/manager/dashboard")) {
@@ -173,7 +187,7 @@ export function getMockResponse(url, method = "get", body = {}) {
   if (cleanUrl.startsWith("/customers")) {
     return [
       { id: 1, full_name: "Sasindu Deshan", email: "sasindu@gmail.com", phone: "0760840228", nic: "982345678V", address: "Colombo, Sri Lanka" },
-      { id: 2, full_name: "Kelum Sampath", email: "kelumsampath@gmail.com", phone: "0912233789", nic: "951234567V", address: "Galle, Sri Lanka" }
+      { id: 2, full_name: "Kelum Sampath", email: "kelumsampath@gmail.com", phone: "0912233789", nic: "200313000970", address: "66, Galle, Sri Lanka" }
     ];
   }
 
