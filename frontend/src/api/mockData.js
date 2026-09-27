@@ -7,8 +7,8 @@ export const mockUsers = [
   { id: 4, name: "Senior Technician", email: "technician@pitstoppro.lk", role: "technician", phone: "0771234004", is_active: 1 },
   { id: 5, name: "Inventory Storekeeper", email: "storekeeper@pitstoppro.lk", role: "storekeeper", phone: "0771234005", is_active: 1 },
   { id: 6, name: "Billing Cashier", email: "cashier@pitstoppro.lk", role: "cashier", phone: "0771234006", is_active: 1 },
-  { id: 7, name: "Sasindu Deshan", email: "sasindu@gmail.com", role: "customer", phone: "0760840228", is_active: 1, customer_id: 1 },
-  { id: 8, name: "Kelum Sampath", email: "kelumsampath@gmail.com", role: "customer", phone: "0912233789", is_active: 1, customer_id: 2 }
+  { id: 7, name: "Sasindu Deshan", email: "sasindu@gmail.com", role: "customer", phone: "0760840228", is_active: 1, customer_id: 1, nic: "982345678V", address: "Colombo, Sri Lanka" },
+  { id: 8, name: "Kelum Sampath", email: "kelumsampath@gmail.com", role: "customer", phone: "0912233789", is_active: 1, customer_id: 2, nic: "200313000970", address: "66, Galle, Sri Lanka" }
 ];
 
 export const mockInventory = [
@@ -19,6 +19,15 @@ export const mockInventory = [
   { id: 5, item_code: "BRK-DSC-F001", name: "Front Brake Disc", category: "spare_part", unit: "piece", unit_price: 4500.00, quantity: 8, low_stock_threshold: 3, supplier: "Brake Masters" },
   { id: 6, item_code: "SPRK-NGK-B6S", name: "Spark Plug NGK B6S", category: "spare_part", unit: "piece", unit_price: 380.00, quantity: 35, low_stock_threshold: 8, supplier: "NGK Lanka" },
   { id: 7, item_code: "COOLANT-1L", name: "Coolant / Antifreeze (1L)", category: "consumable", unit: "bottle", unit_price: 750.00, quantity: 22, low_stock_threshold: 5, supplier: "Lanka Lubricants" }
+];
+
+export const mockServices = [
+  { id: 1, service_code: "SRV-AC-001", name: "A/C Gas Charging & Leak Detection", category: "ac_repair", price: 11500.00, estimated_hours: 2.0, description: "Full AC gas evac, vacuum, leak detection & refrigerant refill." },
+  { id: 2, service_code: "SRV-BRK-001", name: "Brake System Overhaul & Disc Skimming", category: "mechanical", price: 6500.00, estimated_hours: 2.5, description: "Front/rear brake pad inspection, disc resurfacing & fluid flush." },
+  { id: 3, service_code: "SRV-ENG-001", name: "Engine Timing Belt & Water Pump Replacement", category: "mechanical", price: 22000.00, estimated_hours: 7.0, description: "Complete timing belt kit replacement with tensioner & water pump." },
+  { id: 4, service_code: "SRV-OTH-001", name: "Other / Custom Vehicle Issue (Not Listed)", category: "general", price: 1500.00, estimated_hours: 1.5, description: "Comprehensive fault diagnosis by senior certified technician." },
+  { id: 5, service_code: "SRV-CHK-001", name: "Full Vehicle Inspection & Diagnosis", category: "general", price: 3500.00, estimated_hours: 1.0, description: "50-point comprehensive inspection report with upfront repair estimate." },
+  { id: 6, service_code: "SRV-OIL-001", name: "Full Lubrication & Engine Oil Service", category: "periodic_maintenance", price: 4500.00, estimated_hours: 1.0, description: "Engine oil change, oil filter replacement & multi-point check." }
 ];
 
 export const mockJobCards = [
@@ -91,14 +100,14 @@ export const mockInvoices = [
 export const mockAppointments = [
   {
     id: 1,
-    customer_name: "Sasindu Deshan",
-    phone: "0760840228",
-    vehicle_no: "CAB-1234",
-    make_model: "Toyota Corolla Axio",
-    service_type: "Full Service & Oil Change",
-    preferred_date: "2026-09-30",
-    preferred_time: "09:00 AM",
-    notes: "Please check front brake noise",
+    customer_name: "Kelum Sampath",
+    phone: "0912233789",
+    vehicle_no: "WP CA-5678",
+    make_model: "Honda Vezel Hybrid",
+    service_type: "A/C Gas Charging & Leak Detection",
+    preferred_date: "2026-09-29",
+    preferred_time: "Morning (08:30 AM - 12:00 PM)",
+    notes: "Please check AC cooling efficiency",
     status: "confirmed"
   }
 ];
@@ -120,12 +129,8 @@ export function getMockResponse(url, method = "get", body = {}) {
 
   if (cleanUrl.startsWith("/auth/login")) {
     const emailInput = (body.email || body.username || "").toLowerCase().trim();
-    const passwordInput = (body.password || "").trim();
 
-    // Find exact user matching email
     let matchedUser = mockUsers.find(u => u.email.toLowerCase() === emailInput);
-    
-    // If not exact match, check role keywords
     if (!matchedUser) {
       if (emailInput.includes("manager")) matchedUser = mockUsers.find(u => u.role === "manager");
       else if (emailInput.includes("advisor")) matchedUser = mockUsers.find(u => u.role === "advisor");
@@ -137,7 +142,6 @@ export function getMockResponse(url, method = "get", body = {}) {
       else if (emailInput.includes("sasindu")) matchedUser = mockUsers.find(u => u.email === "sasindu@gmail.com");
     }
 
-    // If still no user found or password is provided and completely blank/invalid
     if (!matchedUser) {
       return { error: "Invalid email or password", status: 401 };
     }
@@ -150,7 +154,9 @@ export function getMockResponse(url, method = "get", body = {}) {
         email: matchedUser.email,
         role: matchedUser.role,
         phone: matchedUser.phone,
-        customer_id: matchedUser.customer_id || null
+        customer_id: matchedUser.customer_id || null,
+        nic: matchedUser.nic || "",
+        address: matchedUser.address || ""
       }
     };
   }
@@ -166,6 +172,32 @@ export function getMockResponse(url, method = "get", body = {}) {
 
   if (cleanUrl.startsWith("/manager/staff") || cleanUrl.startsWith("/manager/users")) {
     return mockUsers;
+  }
+
+  if (cleanUrl.startsWith("/customers/store/services")) {
+    return mockServices;
+  }
+
+  if (cleanUrl.startsWith("/customers/store/items")) {
+    return mockInventory;
+  }
+
+  if (cleanUrl.match(/\/customers\/\d+$/)) {
+    const parts = cleanUrl.split("/");
+    const custId = parseInt(parts[parts.length - 1]);
+    const u = mockUsers.find(user => user.customer_id === custId) || mockUsers[7];
+    return {
+      id: custId,
+      full_name: u.name,
+      email: u.email,
+      phone: u.phone,
+      nic: u.nic || "200313000970",
+      address: u.address || "66, Galle, Sri Lanka",
+      vehicles: [
+        { id: 101, make: "Honda", model: "Vezel Hybrid", year: 2018, license_plate: "WP CA-5678", color: "Pearl White", mileage: 62000, vin: "RU3-1204958" },
+        { id: 102, make: "Toyota", model: "Corolla Axio", year: 2017, license_plate: "CAB-1234", color: "Silver", mileage: 45200, vin: "NKE165-709412" }
+      ]
+    };
   }
 
   if (cleanUrl.startsWith("/inventory")) {
@@ -192,10 +224,13 @@ export function getMockResponse(url, method = "get", body = {}) {
   }
 
   if (cleanUrl.startsWith("/notifications")) {
-    return [
-      { id: 1, title: "Low Stock Alert", message: "Oil Filter stock is below minimum threshold (4 left).", created_at: new Date().toISOString() },
-      { id: 2, title: "New Job Card", message: "Job JOB-2026-001 created by Advisor.", created_at: new Date().toISOString() }
-    ];
+    return {
+      notifications: [
+        { id: 1, title: "Booking Confirmed", message: "Your appointment for Honda Vezel Hybrid (WP CA-5678) is confirmed.", type: "system", is_read: 0, created_at: new Date().toISOString() },
+        { id: 2, title: "Job Card Update", message: "Job JOB-2026-002 is currently in progress.", type: "job_update", is_read: 1, created_at: new Date().toISOString() }
+      ],
+      unreadCount: 1
+    };
   }
 
   return [];
