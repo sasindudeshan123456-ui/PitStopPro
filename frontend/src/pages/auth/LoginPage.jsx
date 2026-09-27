@@ -42,18 +42,21 @@ const btnPrimary = {
   transition: "opacity 0.2s",
 };
 
-const btnStaff = {
-  width: "100%",
-  padding: "10px",
+const quickBtnStyle = {
+  padding: "8px 10px",
   borderRadius: 6,
-  background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
-  color: "#fff",
-  border: "none",
-  fontSize: 13,
-  fontWeight: 700,
+  border: "1px solid #cbd5e1",
+  background: "#f8fafc",
+  color: "#334155",
+  fontSize: 11,
+  fontWeight: 600,
   cursor: "pointer",
-  boxShadow: "0 3px 10px rgba(59,130,246,0.3)",
-  transition: "opacity 0.2s",
+  textAlign: "center",
+  transition: "all 0.2s",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 4
 };
 
 // Tab labels
@@ -97,21 +100,29 @@ export default function LoginPage() {
     finally { setLoading(false); }
   };
 
+  const fillAndLogin = async (email, password) => {
+    setForm({ email, password, full_name: "", phone: "", nic: "", address: "" });
+    setLoading(true);
+    try {
+      const u = await login(email, password);
+      toast.success(`Welcome back, ${u.name}!`);
+      navigate(roleRedirects[u.role] || "/");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const validateRegister = () => {
     const errs = {};
     const full_name = form.full_name?.trim() || "";
     const email = form.email?.trim() || "";
     const phone = form.phone?.trim() || "";
     const password = form.password || "";
-    const nic = form.nic?.trim() || "";
     const address = form.address?.trim() || "";
 
-    // 1. Full Name
-    if (!full_name) {
-      errs.full_name = "Full Name is required";
-    }
-
-    // 2. Email validation: Must end with @gmail.com or .com or .lk
+    if (!full_name) errs.full_name = "Full Name is required";
     const emailLower = email.toLowerCase();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
@@ -119,53 +130,33 @@ export default function LoginPage() {
     } else if (!emailRegex.test(emailLower) || !(emailLower.endsWith(".com") || emailLower.endsWith(".lk"))) {
       errs.email = "Email must be valid (e.g. name@gmail.com or ending with .com / .lk)";
     }
-
-    // 3. Phone validation: Must be 10 digits starting with 0
+    const cleanPhone = phone.replace(/[\s-]/g, "");
     if (!phone) {
       errs.phone = "Phone number is required";
-    } else if (!/^0\d{9}$/.test(phone)) {
-      errs.phone = "Phone must be 10 digits starting with 0 (e.g. 0771234567)";
+    } else if (!/^(07\d{8}|0\d{8,9}|\+94\d{9})$/.test(cleanPhone)) {
+      errs.phone = "Phone number must be a valid Sri Lankan phone number (e.g. 0771234567)";
     }
-
-    // 4. Password validation: Min 6 characters
     if (!password) {
       errs.password = "Password is required";
     } else if (password.length < 6) {
-      errs.password = "Password must be at least 6 characters";
+      errs.password = "Password must be at least 6 characters long";
     }
+    if (!address) errs.address = "Address is required";
+    if (!agreed) errs.agreed = "You must agree to terms & policy";
 
-    // 5. Address
-    if (!address) {
-      errs.address = "Address is required";
-    }
-
-    // 7. Terms & Policy checkbox
-    if (!agreed) {
-      errs.agreed = "You must check 'I agree to the terms & policy'";
-    }
-
-    return errs;
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleRegister = async e => {
     e.preventDefault();
-    const errs = validateRegister();
-    setErrors(errs);
-
-    if (Object.keys(errs).length > 0) {
-      const firstErrKey = Object.keys(errs)[0];
-      toast.error(errs[firstErrKey]);
-      return;
-    }
-
+    if (!validateRegister()) return;
     setLoading(true);
     try {
       await api.post("/auth/register", form);
-      toast.success("Account created! Please log in.");
-      setTab("login");
-      setForm({ email:"", password:"", full_name:"", phone:"", nic:"", address:"" });
-      setErrors({});
-      setAgreed(false);
+      toast.success("Account created successfully! Logging in...");
+      const u = await login(form.email, form.password);
+      navigate(roleRedirects[u.role] || "/");
     } catch (err) {
       toast.error(err.response?.data?.message || "Registration failed");
     } finally {
@@ -174,33 +165,41 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ display:"flex", height:"100vh", overflow:"hidden", background:"#fff" }}>
-
-      {/* ── LEFT PANEL ── */}
-      <div style={{
-        flex: "0 0 460px", display:"flex", flexDirection:"column", justifyContent:"center",
-        padding:"28px 48px", background:"#fff", boxSizing:"border-box", overflowY:"auto"
-      }}>
-        <div style={{ width:"100%" }}>
-
-          {/* Logo */}
-          <div style={{ display:"flex", justifyContent:"center", marginBottom:20 }}>
-            <img src={logoImg} alt="PitStop Performance Logo" style={{ height:65, maxWidth:"100%", objectFit:"contain" }} />
+    <div style={{ display:"flex", minHeight:"100vh", background:"#0f172a", fontFamily:"'Inter', sans-serif" }}>
+      {/* ── LEFT PANEL — Login Form ── */}
+      <div style={{ flex:"0 0 460px", background:"#ffffff", display:"flex", flexDirection:"column", justifyContent:"center", padding:"40px 48px", boxShadow:"5px 0 25px rgba(0,0,0,0.15)", zIndex:10 }}>
+        
+        {/* Brand Header */}
+        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:28 }}>
+          <img src={logoImg} alt="PitStop Performance" style={{ height:46, objectFit:"contain" }} />
+          <div>
+            <h1 style={{ margin:0, fontSize:20, fontWeight:800, color:"#0f172a", letterSpacing:"-0.5px" }}>PitStop Performance</h1>
+            <p style={{ margin:0, fontSize:11, color:"#64748b", fontWeight:500 }}>Workshop Management System</p>
           </div>
+        </div>
 
-          <h1 style={{ fontSize:20, fontWeight:800, color:"#0f172a", marginBottom:3, lineHeight:1.2 }}>
-            {tab === "login" ? "Welcome back" : "Create Customer Account"}
-          </h1>
-          <p style={{ fontSize:12, color:"#64748b", marginBottom:18 }}>
-            {tab === "login" ? "Sign in to your workshop dashboard" : "Register for the customer portal"}
-          </p>
+        {/* Tab Selector */}
+        <div style={{ display:"flex", background:"#f1f5f9", borderRadius:8, padding:3, marginBottom:24 }}>
+          {TABS.map(t => (
+            <button key={t.key} type="button" onClick={() => { setTab(t.key); setErrors({}); }} style={{
+              flex:1, padding:"7px 0", border:"none", borderRadius:6, fontSize:12, fontWeight:600, cursor:"pointer", transition:"0.2s",
+              background: tab === t.key ? "#ffffff" : "transparent",
+              color: tab === t.key ? "#0f172a" : "#64748b",
+              boxShadow: tab === t.key ? "0 1px 4px rgba(0,0,0,0.1)" : "none"
+            }}>
+              {t.label}
+            </button>
+          ))}
+        </div>
 
-          {/* ── LOGIN FORM ── */}
+        {/* Tab Contents */}
+        <div>
+          {/* ── SIGN IN FORM ── */}
           {tab === "login" && (
             <form onSubmit={handleLogin} style={{ display:"flex", flexDirection:"column", gap:0 }}>
               <div style={{ marginBottom:14 }}>
-                <label style={labelStyle}>Email or Full Name</label>
-                <input id="login-email" style={inputStyle} type="text" placeholder="Enter your email or full name"
+                <label style={labelStyle}>Email Address or Username</label>
+                <input id="login-email" style={inputStyle} type="text" placeholder="e.g. manager@pitstoppro.lk or kelumsampath@gmail.com"
                   value={form.email} onChange={set("email")} required
                   onFocus={e => focusStyle(e, "email")} onBlur={e => blurStyle(e, "email")} />
               </div>
@@ -215,6 +214,33 @@ export default function LoginPage() {
                 onMouseLeave={e=>e.currentTarget.style.opacity="1"}>
                 {loading ? "Signing in…" : "Sign In"}
               </button>
+
+              {/* Quick Demo Buttons for Easy 1-Click Testing */}
+              <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px dashed #e2e8f0" }}>
+                <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", color: "#64748b", marginBottom: 10, textAlign: "center" }}>
+                  ⚡ Quick Demo Accounts (Click to Test)
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  <button type="button" onClick={() => fillAndLogin("manager@pitstoppro.lk", "Admin@1234")} style={quickBtnStyle}>
+                    🛠️ Manager
+                  </button>
+                  <button type="button" onClick={() => fillAndLogin("kelumsampath@gmail.com", "Admin@1234")} style={quickBtnStyle}>
+                    👤 Customer (Kelum)
+                  </button>
+                  <button type="button" onClick={() => fillAndLogin("advisor@pitstoppro.lk", "Admin@1234")} style={quickBtnStyle}>
+                    📋 Service Advisor
+                  </button>
+                  <button type="button" onClick={() => fillAndLogin("storekeeper@pitstoppro.lk", "Admin@1234")} style={quickBtnStyle}>
+                    📦 Storekeeper
+                  </button>
+                  <button type="button" onClick={() => fillAndLogin("cashier@pitstoppro.lk", "Admin@1234")} style={quickBtnStyle}>
+                    💳 Cashier
+                  </button>
+                  <button type="button" onClick={() => fillAndLogin("sasindu@gmail.com", "Admin@1234")} style={quickBtnStyle}>
+                    👤 Customer (Sasindu)
+                  </button>
+                </div>
+              </div>
 
               <div style={{ textAlign:"center", marginTop:18, fontSize:12, color:"#64748b" }}>
                 <p style={{ margin:0 }}>
